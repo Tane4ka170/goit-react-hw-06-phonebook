@@ -1,55 +1,62 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
 import s from './App.module.css';
+import { useDispatch, useSelector } from 'react-redux';
 
 const App = () => {
-  const initialContacts = [
-    { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-  ];
+  const contacts = useSelector(state => state.contacts.contacts); // Access contacts from Redux state
+  const dispatch = useDispatch();
 
-  const [contacts, setContacts] = useState(
-    () => JSON.parse(window.localStorage.getItem('contacts')) || initialContacts
-  );
-
-  const [filter, setFilter] = useState('');
+  const filter = useSelector(state => state.contacts.filter);
 
   useEffect(() => {
-    window.localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
+    const storedContacts = JSON.parse(window.localStorage.getItem('contacts'));
+    if (storedContacts) {
+      // Dispatch an action to load contacts from localStorage
+      dispatch({ type: 'LOAD_CONTACTS', payload: storedContacts });
+    }
+  }, [dispatch]);
 
   const addContact = event => {
-    const loweredCase = event.name.toLowerCase().trim();
+    const loweredCase = event.target.name.value.toLowerCase().trim();
 
     const exists = contacts.some(
       contact => contact.name.toLowerCase().trim() === loweredCase
     );
 
     if (exists) {
-      alert(`${event.name} is already in contacts!`);
+      alert(`${event.target.name.value} is already in contacts!`);
     } else {
-      const newContact = { ...event, id: nanoid() };
-      setContacts([...contacts, newContact]);
+      const newContact = {
+        name: event.target.name.value,
+        number: event.target.number.value,
+        id: nanoid(),
+      };
+      dispatch(addContact(newContact)); // Dispatch the action to add a contact
     }
   };
 
   const addFilter = event => {
-    setFilter(event.currentTarget.value);
+    // Dispatch an action to update the filter
+    dispatch({ type: 'SET_FILTER', payload: event.currentTarget.value });
+  };
+
+  const deleteContact = id => {
+    // Dispatch the action to delete a contact
+    dispatch(deleteContact(id));
   };
 
   const filteredContacts = contacts.filter(contact => {
-    return contact.name.toLowerCase().includes(filter.toLowerCase());
+    // Check if contact.name and filter are defined before calling toLowerCase()
+    return (
+      contact.name &&
+      filter &&
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+    );
   });
-
-  const deleteContact = id => {
-    const filtered = contacts.filter(contact => contact.id !== id);
-    setContacts(filtered);
-  };
 
   return (
     <div className={s.div}>

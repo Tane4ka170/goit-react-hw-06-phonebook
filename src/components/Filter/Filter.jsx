@@ -10,7 +10,7 @@ const Filter = ({ filter, filterChange }) => {
         className={s.inpt}
         type="text"
         name="filter"
-        value={filter}
+        value={filter || ''} // Ensure filter is a string or an empty string
         onChange={event => filterChange(event.target.value)}
       />
     </>
@@ -18,7 +18,7 @@ const Filter = ({ filter, filterChange }) => {
 };
 
 Filter.propTypes = {
-  filter: PropTypes.string.isRequired,
+  filter: PropTypes.string, // Remove the .isRequired here to allow for undefined
   filterChange: PropTypes.func.isRequired,
 };
 
