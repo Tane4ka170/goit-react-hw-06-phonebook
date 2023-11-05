@@ -7,9 +7,10 @@ const initialState = {
     { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
     { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
   ],
+  filter: '',
 };
 
-export const contactsReduser = (state = initialState, action) => {
+const contactsReducer = (state = initialState, action) => {
   switch (action.type) {
     case ADD_CONTACT:
       return {
@@ -21,14 +22,18 @@ export const contactsReduser = (state = initialState, action) => {
       return {
         ...state,
         contacts: state.contacts.filter(
-          contacts => contacts.id !== action.payload
+          contact => contact.id !== action.payload
         ),
       };
 
     case LOAD_CONTACTS:
-      return action.payload;
+      return {
+        ...state,
+        contacts: action.payload,
+      };
 
     default:
       return state;
   }
 };
+export default contactsReducer;
