@@ -1,35 +1,41 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import s from './ContactForm.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact, getContacts } from '../../redux/sliceContact';
+import { nanoid } from '@reduxjs/toolkit';
 
-const ContactForm = ({ onSubmit }) => {
-  const [formData, setFormData] = useState({ name: '', number: '' });
+const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
 
-  const formSubmit = event => {
+  const handleSubmit = event => {
     event.preventDefault();
-    onSubmit(formData);
-    resetForm();
-  };
 
-  const inputChange = event => {
-    const { name, value } = event.target;
-    setFormData(prevData => ({ ...prevData, [name]: value }));
-  };
+    const contact = {
+      id: nanoid(),
+      name: event.currentTarget.elements.name.value,
+      number: event.currentTarget.elements.number.value,
+    };
 
-  const resetForm = () => {
-    setFormData({ name: '', number: '' });
+    const isExist = contacts.find(
+      ({ name }) => name.toLowerCase() === contact.name.toLowerCase()
+    );
+
+    if (isExist) {
+      return alert(`${contact.name} is already in contacts.`);
+    }
+
+    dispatch(addContact(contact));
+    event.currentTarget.reset();
   };
 
   return (
-    <form onSubmit={formSubmit} className={s.form}>
+    <form onSubmit={handleSubmit} className={s.form}>
       <label className={s.label}>
         <p className={s.title}>Name</p>
         <input
           className={s.input}
           type="text"
           name="name"
-          value={formData.name}
-          onChange={inputChange}
           placeholder="Name"
           required
         />
@@ -40,8 +46,6 @@ const ContactForm = ({ onSubmit }) => {
           className={s.input}
           type="tel"
           name="number"
-          value={formData.number}
-          onChange={inputChange}
           placeholder="Phone Number"
           required
         />
@@ -49,10 +53,6 @@ const ContactForm = ({ onSubmit }) => {
       <button className={s.button}>Add contact</button>
     </form>
   );
-};
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
 };
 
 export default ContactForm;

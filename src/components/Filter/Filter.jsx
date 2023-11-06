@@ -1,25 +1,22 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import s from './Filter.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { filterContacts, getFilter } from 'redux/sliseFilter';
 
-const Filter = ({ filter, filterChange }) => {
+const Filter = () => {
+  const dispatch = useDispatch();
+  const filter = useSelector(getFilter);
   return (
     <>
       <p className={s.title}>Find contacts by name</p>
       <input
         className={s.inpt}
         type="text"
-        name="filter"
-        value={filter || ''} // Ensure filter is a string or an empty string
-        onChange={event => filterChange(event.target.value)}
+        value={filter}
+        onChange={event => dispatch(filterContacts(event.target.value.trim()))}
       />
     </>
   );
-};
-
-Filter.propTypes = {
-  filter: PropTypes.string, // Remove the .isRequired here to allow for undefined
-  filterChange: PropTypes.func.isRequired,
 };
 
 export default Filter;
